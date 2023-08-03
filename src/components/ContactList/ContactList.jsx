@@ -1,7 +1,9 @@
+import { useSelector } from 'react-redux';
 import contactList from './ContactList.module.css';
 import PropTypes from 'prop-types';
 
-const ContactList = ({ contactData, deleteContact }) => {
+const ContactList = ({ deleteContact }) => {
+  const contactData = useSelector(state => state.contacts.contacts);
   return (
     <ol className={contactList.contactList}>
       {contactData.map(({ id, tel, name }) => {
@@ -21,12 +23,5 @@ const ContactList = ({ contactData, deleteContact }) => {
 export default ContactList;
 
 ContactList.propTypes = {
-  contactData: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      tel: PropTypes.string,
-      name: PropTypes.string,
-    })
-  ),
   deleteContact: PropTypes.func,
 };

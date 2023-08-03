@@ -1,50 +1,39 @@
-import React, { useState, useEffect } from 'react';
-
-import { nanoid } from 'nanoid';
-
 import ContactForm from 'components/ContactForm/ContactForm';
 import ContactList from 'components/ContactList/ContactList';
 import Filter from 'components/Filter/Filter';
 
+import { addContact, deleteContact, setFilter } from 'redux/phonebookActions';
+import { useDispatch, useSelector } from 'react-redux';
+
 const App = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    const stringifyContacts = window.localStorage.getItem('contacts');
+  const contacts = useSelector(state => state.contacts.contacts);
 
-    if (stringifyContacts) {
-      setContacts(JSON.parse(stringifyContacts));
-    }
-  }, []);
+  const filter = useSelector(state => state.contacts.filter);
 
-  useEffect(() => {
-    const stringifiedContacts = JSON.stringify(contacts);
-    window.localStorage.setItem('contacts', stringifiedContacts);
-  }, [contacts]);
-
-  const onAddContacts = evt => {
-    const contact = {
-      id: nanoid(),
-      name: evt.name,
-      tel: evt.tel,
+  const addContacts = newContactData => {
+    const newContact = {
+      ...newContactData,
     };
 
-    contacts.some(elem => {
-      return contact.name.toLowerCase() === elem.name.toLowerCase();
-    })
-      ? alert(`${contact.name} is alredy in contacts`)
-      : setContacts(prevContacts => [contact, ...prevContacts]);
+    if (!checkNewContactPresence(newContact.name)) {
+      dispatch(addContact(newContact));
+    } else {
+      alert(`${newContact.name} is already in contacts!`);
+    }
   };
 
-  const filterChange = evt => {
-    setFilter(evt.target.value);
+  const checkNewContactPresence = contactName => {
+    return contacts.some(contact => contact.name === contactName);
   };
 
-  const deleteContact = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+  const filterChange = ({ target: { value } }) => {
+    dispatch(setFilter(value));
+  };
+
+  const onDeleteContact = contactId => {
+    dispatch(deleteContact(contactId));
   };
 
   const filterContacts = contacts.filter(contact => {
@@ -54,11 +43,14 @@ const App = () => {
   return (
     <>
       <h1>Phonebook</h1>
-      <ContactForm onSubmit={onAddContacts} />
+      <ContactForm onSubmit={addContacts} />
 
       <h2>Contacts</h2>
       <Filter value={filter} onChange={filterChange} />
-      <ContactList contactData={filterContacts} deleteContact={deleteContact} />
+      <ContactList
+        contactData={filterContacts}
+        deleteContact={onDeleteContact}
+      />
     </>
   );
 };
