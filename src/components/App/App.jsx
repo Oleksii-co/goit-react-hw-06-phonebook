@@ -4,6 +4,7 @@ import Filter from 'components/Filter/Filter';
 
 import { addContact, deleteContact, setFilter } from 'redux/phonebookActions';
 import { useDispatch, useSelector } from 'react-redux';
+import { Layout } from 'components/Layout/Layout';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -41,7 +42,7 @@ const App = () => {
   });
 
   return (
-    <>
+    <Layout>
       <h1>Phonebook</h1>
       <ContactForm onSubmit={addContacts} />
 
@@ -51,7 +52,7 @@ const App = () => {
         contactData={filterContacts}
         deleteContact={onDeleteContact}
       />
-    </>
+    </Layout>
   );
 };
 
