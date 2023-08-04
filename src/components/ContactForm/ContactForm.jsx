@@ -1,27 +1,37 @@
 import contactForm from './ContactForm.module.css';
-import PropTypes from 'prop-types';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/phonebookActions';
 
-const ContactForm = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [tel, setTel] = useState('');
+const ContactForm = () => {
+  const dispatch = useDispatch();
 
-  const handleChange = evt => {
-    if (evt.target.name === 'name') {
-      setName(evt.target.value);
+  const contacts = useSelector(state => state.contacts.contacts);
+
+  const addContacts = newContactData => {
+    const newContact = {
+      ...newContactData,
+    };
+    if (!checkNewContactPresence(newContact.name)) {
+      dispatch(addContact(newContact));
+    } else {
+      alert(`${newContact.name} is already in contacts!`);
     }
-    if (evt.target.name === 'tel') {
-      setTel(evt.target.value);
-    }
+  };
+
+  const checkNewContactPresence = contactName => {
+    return contacts.some(contact => contact.name === contactName);
   };
 
   const formSubmit = evt => {
     evt.preventDefault();
-
-    onSubmit({ name, tel });
-    setName('');
-    setTel('');
+    const form = evt.target;
+    addContacts({
+      name: evt.target.name.value,
+      tel: evt.target.tel.value,
+    });
+    form.reset();
   };
 
   return (
@@ -34,8 +44,6 @@ const ContactForm = ({ onSubmit }) => {
           pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
-          value={name}
-          onChange={handleChange}
         />
       </label>
       <label>
@@ -46,8 +54,6 @@ const ContactForm = ({ onSubmit }) => {
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
-          value={tel}
-          onChange={handleChange}
         />
       </label>
 
@@ -57,7 +63,3 @@ const ContactForm = ({ onSubmit }) => {
 };
 
 export default ContactForm;
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
